@@ -1,0 +1,55 @@
+"""Read funnel.db and write report.html (data embedded as JSON, rendered by template.html)."""
+import json
+import sqlite3
+from collections import Counter
+from datetime import date
+
+from common import DB_PATH, HERE, TODAY, week_start
+
+KEYS = ["added", "message_sent", "contacted", "replied", "meeting", "won", "no_response", "not_interested"]
+STAGES = [
+    {"key": "added", "label": "Added"},
+    {"key": "message_sent", "label": "Message Sent"},
+    {"key": "contacted", "label": "Contacted"},
+    {"key": "replied", "label": "Replied"},
+    {"key": "meeting", "label": "Meeting"},
+    {"key": "won", "label": "Won"},
+]
+
+
+def main():
+    db = sqlite3.connect(DB_PATH)
+    funnel = [
+        {"week": w, "source": s, **dict(zip(KEYS, vals))}
+        for w, s, *vals in db.execute(
+            f"SELECT week_start, source_tab, {', '.join(KEYS)} FROM v_weekly_funnel ORDER BY week_start")
+    ]
+
+    moves = Counter()
+    for changed_on, source, to_status in db.execute(
+            "SELECT changed_on, source_tab, to_status FROM v_status_changes"):
+        wk = week_start(date.fromisoformat(changed_on)).isoformat()
+        moves[(wk, source, to_status)] += 1
+
+    weeks = sorted({r["week"] for r in funnel})
+    current = week_start(TODAY).isoformat()
+    data = {
+        "asOf": TODAY.isoformat(),
+        "currentWeek": current,
+        "defaultWeek": "all",
+        "weeks": weeks,
+        "sources": sorted({r["source"] for r in funnel}),
+        "keys": KEYS,
+        "stages": STAGES,
+        "funnel": funnel,
+        "moves": [{"week": w, "source": s, "to": t, "n": n} for (w, s, t), n in sorted(moves.items())],
+    }
+    html = (HERE / "template.html").read_text().replace("__DATA__", json.dumps(data))
+    out = HERE / "site" / "index.html"
+    out.parent.mkdir(exist_ok=True)
+    out.write_text(html)
+    print(f"wrote {out.relative_to(HERE)}: {len(funnel)} cohort rows, {len(weeks)} weeks")
+
+
+if __name__ == "__main__":
+    main()
