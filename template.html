@@ -3,7 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#09090d">
+<meta name="description" content="Weekly outreach funnel grouped by the week leads were added.">
 <title>Weekly Funnel Report</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12' fill='%23764ff6'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -11,94 +15,118 @@
 :root {
   color-scheme: dark;
   --bg: #09090d; --surface-1: #14121e;
-  --text-primary: #f3f2f8; --text-secondary: #a6a3b8; --text-muted: #6d6a80;
+  --text-primary: #f3f2f8; --text-secondary: #a6a3b8; --text-muted: #8f8ca3;
   --grid: #2a2538; --border: #2a2538; --hover: #1b1826;
   --brand: #764ff6; --brand-soft: #d6c7fc;
   --stage-1: #5b3fd2; --stage-2: #6a47e6; --stage-3: #764ff6; --stage-4: #926bf7; --stage-5: #b399fb; --stage-6: #d6c7fc;
-  --series-1: #926bf7;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px;
+  --radius: 16px;
 }
 * { box-sizing: border-box; }
-body { margin: 0; background-color: var(--bg); color: var(--text-primary);
+body { margin: 0; color: var(--text-primary);
   font: 14px/1.45 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   background: radial-gradient(900px 420px at 50% -140px, rgba(118,79,246,.24), transparent 70%), var(--bg); }
-.wrap { max-width: 1120px; margin: 0 auto; padding: 24px 16px 48px; }
-h1 { font-size: 20px; margin: 0 0 2px; font-weight: 600; }
-.sub { color: var(--text-secondary); margin: 0 0 16px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: var(--s5) var(--s4) 48px; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+:focus-visible { outline: 2px solid var(--brand-soft); outline-offset: 2px; }
+
+header { margin-bottom: var(--s5); }
+h1 { font-size: 22px; line-height: 1.25; font-weight: 600; margin: 0 0 var(--s4); }
 .badge { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
-  padding: 2px 8px; border-radius: 999px; background: rgba(118,79,246,.16); color: var(--brand-soft); border: 1px solid rgba(146,107,247,.35); margin-left: 8px; vertical-align: 2px; }
-.controls { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; margin-bottom: 16px; }
+  padding: 2px var(--s2); border-radius: 999px; background: rgba(118,79,246,.16); color: var(--brand-soft);
+  border: 1px solid rgba(146,107,247,.35); margin-left: var(--s2); vertical-align: 3px; }
+.controls { display: flex; flex-wrap: wrap; gap: var(--s3) var(--s5); align-items: center; }
 .seg { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-1); }
-.seg button { border: 0; background: none; color: var(--text-secondary); padding: 6px 14px; border-radius: 999px; font: inherit; cursor: pointer; }
+.seg button { min-height: 36px; border: 0; background: none; color: var(--text-secondary); padding: 0 var(--s4); border-radius: 999px;
+  font: inherit; cursor: pointer; transition: background .15s, color .15s; }
+.seg button:hover:not([aria-pressed="true"]) { background: var(--hover); color: var(--text-primary); }
 .seg button[aria-pressed="true"] { background: var(--brand); color: #fff; box-shadow: 0 0 18px rgba(118,79,246,.45); }
-.seg button:focus-visible, select:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
-label.ctl { color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
-select { font: inherit; color: var(--text-primary); background: var(--surface-1); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; }
-.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
-.card h2 { font-size: 14px; margin: 0 0 12px; font-weight: 600; }
-.card .note { color: var(--text-muted); font-size: 12px; margin: 0 0 12px; }
-.kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
-.kpi { background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px; padding: 12px 14px; }
-.kpi .l { color: var(--text-secondary); font-size: 12px; }
-.kpi .v { font-size: 26px; font-weight: 600; color: var(--brand-soft); line-height: 1.2; font-variant-numeric: tabular-nums; }
+label.ctl { color: var(--text-secondary); display: flex; align-items: center; gap: var(--s2); }
+select { min-height: 38px; font: inherit; color: var(--text-primary); background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: 999px; padding: 0 var(--s4); transition: border-color .15s; }
+select:hover { border-color: #4a4560; }
+@media (pointer: coarse) { .seg button, select { min-height: 44px; } }
+
+.kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s3); margin-bottom: var(--s4); }
+.kpi { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--s4); }
+.kpi .l { color: var(--text-secondary); font-size: 13px; }
+.kpi .v { font-size: 26px; font-weight: 600; color: var(--brand-soft); line-height: 1.2; margin: var(--s1) 0; font-variant-numeric: tabular-nums; }
 .kpi .s { color: var(--text-muted); font-size: 12px; }
-#funnel svg text { font-size: 12px; }
+
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: var(--s4); }
+.card:last-child { margin-bottom: 0; }
+.card h2 { font-size: 15px; margin: 0 0 var(--s4); font-weight: 600; }
+
+/* funnel: wide = tapered SVG, narrow = stacked bars */
+#funnel svg text { font-size: 12px; fill: var(--text-muted); }
+#funnel svg text.lbl { font-size: 13px; fill: var(--text-secondary); }
 #funnel svg text.fp { font-size: 20px; font-weight: 600; fill: var(--text-primary); }
 #funnel svg text.cnt { font-size: 13px; font-weight: 600; fill: var(--text-primary); }
-.seg { cursor: default; }
-.seg:hover { opacity: .85; }
-.section { margin-bottom: 16px; }
-.frow { display: grid; grid-template-columns: 104px 1fr 150px; align-items: center; gap: 10px; padding: 3px 0; border-radius: 6px; }
-.frow:hover { background: var(--hover); }
-.frow .name { color: var(--text-secondary); }
-.frow .track { height: 22px; }
-.frow .bar { height: 100%; border-radius: 0 4px 4px 0; min-width: 2px; }
-.frow .val { font-variant-numeric: tabular-nums; text-align: right; }
-.frow .val small { display: block; color: var(--text-muted); font-size: 11px; }
-table { width: 100%; border-collapse: separate; border-spacing: 0 2px; font-variant-numeric: tabular-nums; }
-th { text-align: right; font-weight: 500; color: var(--text-secondary); font-size: 12px; padding: 4px 8px; white-space: nowrap; }
-th:first-child, td:first-child { text-align: left; }
-td { text-align: right; padding: 6px 8px; white-space: nowrap; }
-td.n small { color: var(--text-secondary); margin-left: 4px; font-size: 11px; }
-tbody tr.pick { cursor: pointer; }
-tbody tr.pick:hover td:first-child { text-decoration: underline; }
-tbody tr.sel td:first-child { box-shadow: inset 3px 0 0 var(--series-1); font-weight: 600; }
-tfoot td { border-top: 1px solid var(--border); font-weight: 600; }
+.fseg:hover { opacity: .85; }
+.flist { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s4); }
+.fitem { display: grid; gap: 6px; }
+.fhead { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s3); }
+.fname { color: var(--text-secondary); }
+.fval { font-variant-numeric: tabular-nums; }
+.fval b { font-weight: 600; margin-left: var(--s2); }
+.ftrack { height: 12px; }
+.fbar { height: 100%; min-width: 3px; border-radius: 0 6px 6px 0; }
+.fstep { color: var(--text-muted); font-size: 12px; }
+
+/* movement table */
 .scroll { overflow-x: auto; }
-.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 6px; color: var(--text-secondary); font-size: 12px; }
-.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
-svg text { font: 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif; fill: var(--text-muted); }
-svg text.lbl { fill: var(--text-secondary); }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { padding: 10px var(--s3); text-align: right; white-space: nowrap; }
+thead th { font-size: 12px; font-weight: 500; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+tbody th { font-weight: 400; color: var(--text-primary); text-align: left; }
+tbody tr + tr > * { border-top: 1px solid var(--grid); }
+th:first-child { position: sticky; left: 0; text-align: left; background: var(--surface-1); box-shadow: 1px 0 0 var(--grid); }
+.partial { color: var(--text-muted); font-size: 12px; margin-left: var(--s1); }
+
 #tip { position: fixed; pointer-events: none; background: var(--surface-1); border: 1px solid var(--border);
-  border-radius: 8px; padding: 8px 10px; font-size: 12px; box-shadow: 0 4px 16px rgba(0,0,0,.18); display: none; z-index: 10; max-width: 240px; }
+  border-radius: 8px; padding: var(--s2) 10px; font-size: 12px; box-shadow: 0 4px 16px rgba(0,0,0,.4); display: none; z-index: 10; max-width: 240px; }
 #tip b { display: block; margin-bottom: 2px; }
 #tip div { color: var(--text-secondary); font-variant-numeric: tabular-nums; }
-@media (max-width: 800px) {
+
+@media (max-width: 760px) {
   .kpis { grid-template-columns: repeat(2, 1fr); }
+  .kpi:last-child { grid-column: 1 / -1; }
 }
+@media (max-width: 560px) {
+  h1 { font-size: 20px; }
+  .card { padding: var(--s4); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Weekly Funnel Report <span class="badge">Fake data</span></h1>
+  <header>
+    <h1>Weekly Funnel Report <span class="badge">Fake data</span></h1>
+    <div class="controls">
+      <div class="seg" id="srcSeg" role="group" aria-label="Source tab"></div>
+      <label class="ctl">Cohort week <select id="weekSel"></select></label>
+    </div>
+  </header>
 
-  <div class="controls">
-    <div class="seg" id="srcSeg" role="group" aria-label="Source tab"></div>
-    <label class="ctl">Cohort week <select id="weekSel"></select></label>
-  </div>
+  <main>
+    <div class="kpis" id="kpis"></div>
 
-  <div class="kpis" id="kpis"></div>
+    <section class="card" aria-labelledby="fTitle">
+      <h2 id="fTitle">Funnel</h2>
+      <div id="funnel"></div>
+    </section>
 
-  <div class="card">
-    <h2 id="fTitle">Funnel</h2>
-    <div id="funnel"></div>
-  </div>
-
-  <div class="card">
-    <h2>Movement by calendar week</h2>
-    <div class="scroll"><table id="moveTable"></table></div>
-  </div>
+    <section class="card" aria-labelledby="mTitle">
+      <h2 id="mTitle">Movement by calendar week</h2>
+      <div class="scroll" role="region" aria-label="Movement table, scrolls sideways on small screens" tabindex="0">
+        <table id="moveTable"></table>
+      </div>
+    </section>
+  </main>
 </div>
 <div id="tip"></div>
+<div id="live" class="sr-only" role="status" aria-live="polite"></div>
 
 <script>
 window.DATA = __DATA__;
@@ -109,7 +137,6 @@ const $ = s => document.querySelector(s);
 const state = { source: 'All', week: D.defaultWeek };
 
 const fmtWeek = iso => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
-const fmtDate = iso => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 const pct = (n, d) => d ? n / d * 100 : 0;
 const fp = v => (v > 0 && v < 10 ? v.toFixed(1) : Math.round(v)) + '%';
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -125,7 +152,7 @@ function sum(rs) {
 const scope = () => sum(rows(state.week === 'all' ? null : state.week));
 const scopeLabel = () => (state.week === 'all' ? 'All cohorts' : 'Week of ' + fmtWeek(state.week)) + (state.source === 'All' ? '' : ' · ' + state.source);
 
-/* ---- tooltip ---- */
+/* ---- tooltip (wide funnel only) ---- */
 const tip = $('#tip');
 function showTip(html, x, y) {
   tip.innerHTML = html; tip.style.display = 'block';
@@ -135,20 +162,21 @@ function showTip(html, x, y) {
 }
 const hideTip = () => tip.style.display = 'none';
 
-/* ---- controls ---- */
-function renderControls() {
-  $('#srcSeg').innerHTML = ['All', ...D.sources].map(s =>
-    `<button data-src="${s}" aria-pressed="${state.source === s}">${s}</button>`).join('');
-  const opts = [...D.weeks].reverse().map(w =>
-    `<option value="${w}">${fmtWeek(w)}${w === D.currentWeek ? ' (current, partial)' : ''}</option>`);
-  $('#weekSel').innerHTML = `<option value="all">All cohorts</option>` + opts.join('');
+/* ---- controls: built once so keyboard focus survives updates ---- */
+function initControls() {
+  $('#srcSeg').innerHTML = ['All', ...D.sources].map(s => `<button type="button" data-src="${s}">${s}</button>`).join('');
+  $('#weekSel').innerHTML = `<option value="all">All cohorts</option>` + [...D.weeks].reverse().map(w =>
+    `<option value="${w}">${fmtWeek(w)}${w === D.currentWeek ? ' (current, partial)' : ''}</option>`).join('');
+}
+function syncControls() {
+  document.querySelectorAll('#srcSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.src === state.source)));
   $('#weekSel').value = state.week;
 }
 $('#srcSeg').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
-  state.source = b.dataset.src; render();
+  state.source = b.dataset.src; render(true);
 });
-$('#weekSel').addEventListener('change', e => { state.week = e.target.value; render(); });
+$('#weekSel').addEventListener('change', e => { state.week = e.target.value; render(true); });
 
 /* ---- KPIs ---- */
 function renderKPIs() {
@@ -165,10 +193,21 @@ function renderKPIs() {
 }
 
 /* ---- funnel ---- */
-function renderFunnel() {
-  const t = scope();
-  $('#fTitle').textContent = 'Funnel · ' + scopeLabel();
-  const W = 1000, H = 320, x0 = 20, x1 = 860, cy = 172, hmax = 190, hmin = 5, endH = 30;
+const WIDE = 860;
+let funnelMode = null;
+const modeNow = () => $('#funnel').clientWidth >= WIDE ? 'wide' : 'narrow';
+
+function funnelList(t) {
+  return '<ul class="flist">' + D.stages.map((s, i) => {
+    const v = t[s.key], prev = i ? D.stages[i - 1] : null;
+    return `<li class="fitem"><div class="fhead"><span class="fname">${s.label}</span><span class="fval">${v.toLocaleString()}<b>${fp(pct(v, t.added))}</b></span></div>`
+      + `<div class="ftrack"><div class="fbar" style="width:${pct(v, t.added)}%;background:var(--stage-${i + 1})"></div></div>`
+      + (prev ? `<div class="fstep">${fp(pct(v, t[prev.key]))} of ${prev.label}</div>` : '') + '</li>';
+  }).join('') + '</ul>';
+}
+
+function funnelSvg(t) {
+  const W = 1000, H = 320, x0 = 20, x1 = 900, cy = 172, hmax = 190, hmin = 5, endH = 30;
   const n = D.stages.length, sw = (x1 - x0) / n;
   const hh = v => Math.max(hmin, t.added ? v / t.added * hmax : hmin);
   const hs = D.stages.map(s => hh(t[s.key]));
@@ -176,21 +215,31 @@ function renderFunnel() {
   D.stages.forEach((s, i) => {
     const xa = x0 + i * sw, xb = xa + sw, mid = xa + sw / 2;
     const ha = hs[i], hb = i < n - 1 ? hs[i + 1] : endH, v = t[s.key];
-    out += `<path class="seg" data-i="${i}" fill="var(--stage-${i + 1})" stroke="var(--surface-1)" stroke-width="2" stroke-linejoin="round"
+    out += `<path class="fseg" data-i="${i}" fill="var(--stage-${i + 1})" stroke="var(--surface-1)" stroke-width="2" stroke-linejoin="round"
       d="M${xa},${cy - ha / 2} L${xb},${cy - hb / 2} L${xb},${cy + hb / 2} L${xa},${cy + ha / 2} Z"/>`;
     out += `<text class="fp" x="${mid}" y="26" text-anchor="middle">${fp(pct(v, t.added))}</text>`
-         + `<text class="lbl" x="${mid}" y="44" text-anchor="middle">${s.label}</text>`
-         + `<text x="${mid}" y="60" text-anchor="middle">${v.toLocaleString()}</text>`;
+         + `<text class="lbl" x="${mid}" y="45" text-anchor="middle">${s.label}</text>`
+         + `<text x="${mid}" y="62" text-anchor="middle">${v.toLocaleString()}</text>`;
     if (i) out += `<text x="${mid}" y="${H - 8}" text-anchor="middle">${fp(pct(v, t[D.stages[i - 1].key]))} of previous</text>`;
   });
   const last = t[D.stages[n - 1].key];
   out += `<circle cx="${x1 + 44}" cy="${cy}" r="36" fill="var(--surface-1)" stroke="var(--stage-1)" stroke-width="2"/>`
-       + `<text class="cnt" x="${x1 + 44}" y="${cy + 5}" text-anchor="middle">${last.toLocaleString()}</text>`
-       + `<text class="lbl" x="${x1 + 44}" y="${cy + 58}" text-anchor="middle">${D.stages[n - 1].label}</text>`;
-  $('#funnel').innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Funnel: ${esc(scopeLabel())}">${out}</svg>`;
+       + `<text class="cnt" x="${x1 + 44}" y="${cy + 5}" text-anchor="middle">${last.toLocaleString()}</text>`;
+  const sr = '<ul class="sr-only">' + D.stages.map((s, i) =>
+    `<li>${s.label}: ${t[s.key].toLocaleString()} (${fp(pct(t[s.key], t.added))} of added)</li>`).join('') + '</ul>';
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" aria-hidden="true">${out}</svg>${sr}`;
 }
+
+function renderFunnel() {
+  const t = scope();
+  $('#fTitle').textContent = 'Funnel · ' + scopeLabel();
+  funnelMode = modeNow();
+  $('#funnel').innerHTML = funnelMode === 'wide' ? funnelSvg(t) : funnelList(t);
+}
+new ResizeObserver(() => { if (modeNow() !== funnelMode) renderFunnel(); }).observe($('#funnel'));
+
 $('#funnel').addEventListener('mousemove', e => {
-  const r = e.target.closest('.seg'); if (!r) return hideTip();
+  const r = e.target.closest('.fseg'); if (!r) return hideTip();
   const t = scope(), i = +r.dataset.i, s = D.stages[i], v = t[s.key];
   let h = `<b>${s.label}</b><div>${v.toLocaleString()} of ${t.added.toLocaleString()} added (${fp(pct(v, t.added))})</div>`;
   if (i) { const p = D.stages[i - 1]; h += `<div>${fp(pct(v, t[p.key]))} of ${p.label}; ${(t[p.key] - v).toLocaleString()} dropped here</div>`; }
@@ -204,14 +253,19 @@ function renderMoves() {
   const ms = D.moves.filter(m => state.source === 'All' || m.source === state.source);
   const weeks = [...new Set(ms.map(m => m.week))].sort().reverse();
   const n = (w, s) => ms.filter(m => m.week === w && m.to === s).reduce((a, m) => a + m.n, 0);
-  $('#moveTable').innerHTML = `<thead><tr><th>Week of</th>${MOVE_COLS.map(c => `<th>→ ${c}</th>`).join('')}</tr></thead><tbody>` +
-    weeks.map(w => `<tr><td>${fmtWeek(w)}${w === D.currentWeek ? ' <small style="color:var(--text-muted)">partial</small>' : ''}</td>${MOVE_COLS.map(c => `<td class="n">${n(w, c)}</td>`).join('')}</tr>`).join('') + '</tbody>';
+  $('#moveTable').innerHTML =
+    `<caption class="sr-only">Leads that changed to each status, by calendar week</caption>`
+    + `<thead><tr><th scope="col">Week of</th>${MOVE_COLS.map(c => `<th scope="col">→ ${c}</th>`).join('')}</tr></thead><tbody>`
+    + weeks.map(w => `<tr><th scope="row">${fmtWeek(w)}${w === D.currentWeek ? '<span class="partial">partial</span>' : ''}</th>`
+      + `${MOVE_COLS.map(c => `<td>${n(w, c)}</td>`).join('')}</tr>`).join('') + '</tbody>';
 }
 
-function render() {
-  renderControls(); renderKPIs(); renderFunnel(); renderMoves();
+function render(announce) {
+  syncControls(); renderKPIs(); renderFunnel(); renderMoves();
+  if (announce) $('#live').textContent = 'Showing ' + scopeLabel() + ': ' + scope().added.toLocaleString() + ' leads added';
 }
-render();
+initControls();
+render(false);
 </script>
 </body>
 </html>
