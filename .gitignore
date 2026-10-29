@@ -1,0 +1,4 @@
+funnel.db
+__pycache__/
+site/
+.DS_Store
