@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weekly Funnel Report</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f4f3ef; --surface-1: #fcfcfb;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #7a7975;
+  --grid: #e6e5e1; --border: #dddcd7; --hover: #efeeea;
+  --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a;
+  --stage-1: #0d366b; --stage-2: #184f95; --stage-3: #256abf; --stage-4: #3987e5; --stage-5: #6da7ec; --stage-6: #86b6ef;
+  --heat: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --bg: #121211; --surface-1: #1a1a19;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #96958c;
+    --grid: #2e2e2c; --border: #343432; --hover: #242422;
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
+    --stage-1: #184f95; --stage-2: #1c5cab; --stage-3: #2a78d6; --stage-4: #5598e7; --stage-5: #86b6ef; --stage-6: #b7d3f6;
+    --heat: #3987e5;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface-1: #1a1a19;
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #96958c;
+  --grid: #2e2e2c; --border: #343432; --hover: #242422;
+  --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
+  --stage-1: #184f95; --stage-2: #1c5cab; --stage-3: #2a78d6; --stage-4: #5598e7; --stage-5: #86b6ef; --stage-6: #b7d3f6;
+  --heat: #3987e5;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text-primary);
+  font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 24px 16px 48px; }
+h1 { font-size: 20px; margin: 0 0 2px; font-weight: 600; }
+.sub { color: var(--text-secondary); margin: 0 0 16px; }
+.badge { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 999px; background: var(--hover); color: var(--text-secondary); border: 1px solid var(--border); margin-left: 8px; vertical-align: 2px; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; margin-bottom: 16px; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface-1); }
+.seg button { border: 0; background: none; color: var(--text-secondary); padding: 6px 12px; font: inherit; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button[aria-pressed="true"] { background: var(--text-primary); color: var(--surface-1); }
+.seg button:focus-visible, select:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+label.ctl { color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
+select { font: inherit; color: var(--text-primary); background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; }
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.card h2 { font-size: 14px; margin: 0 0 12px; font-weight: 600; }
+.card .note { color: var(--text-muted); font-size: 12px; margin: 0 0 12px; }
+.kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
+.kpi { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+.kpi .l { color: var(--text-secondary); font-size: 12px; }
+.kpi .v { font-size: 26px; font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.kpi .s { color: var(--text-muted); font-size: 12px; }
+#funnel svg text { font-size: 12px; }
+#funnel svg text.fp { font-size: 20px; font-weight: 600; fill: var(--text-primary); }
+#funnel svg text.cnt { font-size: 13px; font-weight: 600; fill: var(--text-primary); }
+.seg { cursor: default; }
+.seg:hover { opacity: .85; }
+.section { margin-bottom: 16px; }
+.frow { display: grid; grid-template-columns: 104px 1fr 150px; align-items: center; gap: 10px; padding: 3px 0; border-radius: 6px; }
+.frow:hover { background: var(--hover); }
+.frow .name { color: var(--text-secondary); }
+.frow .track { height: 22px; }
+.frow .bar { height: 100%; border-radius: 0 4px 4px 0; min-width: 2px; }
+.frow .val { font-variant-numeric: tabular-nums; text-align: right; }
+.frow .val small { display: block; color: var(--text-muted); font-size: 11px; }
+table { width: 100%; border-collapse: separate; border-spacing: 0 2px; font-variant-numeric: tabular-nums; }
+th { text-align: right; font-weight: 500; color: var(--text-secondary); font-size: 12px; padding: 4px 8px; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+td { text-align: right; padding: 6px 8px; white-space: nowrap; }
+td.n small { color: var(--text-secondary); margin-left: 4px; font-size: 11px; }
+tbody tr.pick { cursor: pointer; }
+tbody tr.pick:hover td:first-child { text-decoration: underline; }
+tbody tr.sel td:first-child { box-shadow: inset 3px 0 0 var(--series-1); font-weight: 600; }
+tfoot td { border-top: 1px solid var(--border); font-weight: 600; }
+.scroll { overflow-x: auto; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 6px; color: var(--text-secondary); font-size: 12px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+svg text { font: 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif; fill: var(--text-muted); }
+svg text.lbl { fill: var(--text-secondary); }
+#tip { position: fixed; pointer-events: none; background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 10px; font-size: 12px; box-shadow: 0 4px 16px rgba(0,0,0,.18); display: none; z-index: 10; max-width: 240px; }
+#tip b { display: block; margin-bottom: 2px; }
+#tip div { color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+@media (max-width: 800px) {
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Weekly Funnel Report <span class="badge">Fake data</span></h1>
+
+  <div class="controls">
+    <div class="seg" id="srcSeg" role="group" aria-label="Source tab"></div>
+    <label class="ctl">Cohort week <select id="weekSel"></select></label>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card">
+    <h2 id="fTitle">Funnel</h2>
+    <div id="funnel"></div>
+  </div>
+
+  <div class="card">
+    <h2>Movement by calendar week</h2>
+    <div class="scroll"><table id="moveTable"></table></div>
+  </div>
+</div>
+<div id="tip"></div>
+
+<script>
+window.DATA = __DATA__;
+</script>
+<script>
+const D = window.DATA;
+const $ = s => document.querySelector(s);
+const state = { source: 'All', week: D.defaultWeek };
+
+const fmtWeek = iso => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+const fmtDate = iso => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+const pct = (n, d) => d ? n / d * 100 : 0;
+const fp = v => (v > 0 && v < 10 ? v.toFixed(1) : Math.round(v)) + '%';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function rows(week) {
+  return D.funnel.filter(r => (state.source === 'All' || r.source === state.source) && (week == null || r.week === week));
+}
+function sum(rs) {
+  const o = {}; D.keys.forEach(k => o[k] = 0);
+  rs.forEach(r => D.keys.forEach(k => o[k] += r[k]));
+  return o;
+}
+const scope = () => sum(rows(state.week === 'all' ? null : state.week));
+const scopeLabel = () => (state.week === 'all' ? 'All cohorts' : 'Week of ' + fmtWeek(state.week)) + (state.source === 'All' ? '' : ' · ' + state.source);
+
+/* ---- tooltip ---- */
+const tip = $('#tip');
+function showTip(html, x, y) {
+  tip.innerHTML = html; tip.style.display = 'block';
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.min(x + 14, innerWidth - w - 8) + 'px';
+  tip.style.top = Math.min(y + 14, innerHeight - h - 8) + 'px';
+}
+const hideTip = () => tip.style.display = 'none';
+
+/* ---- controls ---- */
+function renderControls() {
+  $('#srcSeg').innerHTML = ['All', ...D.sources].map(s =>
+    `<button data-src="${s}" aria-pressed="${state.source === s}">${s}</button>`).join('');
+  const opts = [...D.weeks].reverse().map(w =>
+    `<option value="${w}">${fmtWeek(w)}${w === D.currentWeek ? ' (current, partial)' : ''}</option>`);
+  $('#weekSel').innerHTML = `<option value="all">All cohorts</option>` + opts.join('');
+  $('#weekSel').value = state.week;
+}
+$('#srcSeg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  state.source = b.dataset.src; render();
+});
+$('#weekSel').addEventListener('change', e => { state.week = e.target.value; render(); });
+
+/* ---- KPIs ---- */
+function renderKPIs() {
+  const t = scope();
+  const tiles = [
+    ['Leads added', t.added.toLocaleString(), scopeLabel()],
+    ['Message sent', fp(pct(t.message_sent, t.added)), t.message_sent + ' of ' + t.added],
+    ['Replied', fp(pct(t.replied, t.added)), t.replied + ' of ' + t.added],
+    ['Meetings', t.meeting.toLocaleString(), fp(pct(t.meeting, t.added)) + ' of added'],
+    ['Won', t.won.toLocaleString(), fp(pct(t.won, t.added)) + ' of added'],
+  ];
+  $('#kpis').innerHTML = tiles.map(([l, v, s]) =>
+    `<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${esc(s)}</div></div>`).join('');
+}
+
+/* ---- funnel ---- */
+function renderFunnel() {
+  const t = scope();
+  $('#fTitle').textContent = 'Funnel · ' + scopeLabel();
+  const W = 1000, H = 320, x0 = 20, x1 = 860, cy = 172, hmax = 190, hmin = 5, endH = 30;
+  const n = D.stages.length, sw = (x1 - x0) / n;
+  const hh = v => Math.max(hmin, t.added ? v / t.added * hmax : hmin);
+  const hs = D.stages.map(s => hh(t[s.key]));
+  let out = '';
+  D.stages.forEach((s, i) => {
+    const xa = x0 + i * sw, xb = xa + sw, mid = xa + sw / 2;
+    const ha = hs[i], hb = i < n - 1 ? hs[i + 1] : endH, v = t[s.key];
+    out += `<path class="seg" data-i="${i}" fill="var(--stage-${i + 1})" stroke="var(--surface-1)" stroke-width="2" stroke-linejoin="round"
+      d="M${xa},${cy - ha / 2} L${xb},${cy - hb / 2} L${xb},${cy + hb / 2} L${xa},${cy + ha / 2} Z"/>`;
+    out += `<text class="fp" x="${mid}" y="26" text-anchor="middle">${fp(pct(v, t.added))}</text>`
+         + `<text class="lbl" x="${mid}" y="44" text-anchor="middle">${s.label}</text>`
+         + `<text x="${mid}" y="60" text-anchor="middle">${v.toLocaleString()}</text>`;
+    if (i) out += `<text x="${mid}" y="${H - 8}" text-anchor="middle">${fp(pct(v, t[D.stages[i - 1].key]))} of previous</text>`;
+  });
+  const last = t[D.stages[n - 1].key];
+  out += `<circle cx="${x1 + 44}" cy="${cy}" r="36" fill="var(--surface-1)" stroke="var(--stage-1)" stroke-width="2"/>`
+       + `<text class="cnt" x="${x1 + 44}" y="${cy + 5}" text-anchor="middle">${last.toLocaleString()}</text>`
+       + `<text class="lbl" x="${x1 + 44}" y="${cy + 58}" text-anchor="middle">${D.stages[n - 1].label}</text>`;
+  $('#funnel').innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Funnel: ${esc(scopeLabel())}">${out}</svg>`;
+}
+$('#funnel').addEventListener('mousemove', e => {
+  const r = e.target.closest('.seg'); if (!r) return hideTip();
+  const t = scope(), i = +r.dataset.i, s = D.stages[i], v = t[s.key];
+  let h = `<b>${s.label}</b><div>${v.toLocaleString()} of ${t.added.toLocaleString()} added (${fp(pct(v, t.added))})</div>`;
+  if (i) { const p = D.stages[i - 1]; h += `<div>${fp(pct(v, t[p.key]))} of ${p.label}; ${(t[p.key] - v).toLocaleString()} dropped here</div>`; }
+  showTip(h, e.clientX, e.clientY);
+});
+$('#funnel').addEventListener('mouseleave', hideTip);
+
+/* ---- movement table ---- */
+const MOVE_COLS = ['Message Sent', 'Contacted', 'Replied', 'Meeting', 'Won', 'No Response', 'Not Interested'];
+function renderMoves() {
+  const ms = D.moves.filter(m => state.source === 'All' || m.source === state.source);
+  const weeks = [...new Set(ms.map(m => m.week))].sort().reverse();
+  const n = (w, s) => ms.filter(m => m.week === w && m.to === s).reduce((a, m) => a + m.n, 0);
+  $('#moveTable').innerHTML = `<thead><tr><th>Week of</th>${MOVE_COLS.map(c => `<th>→ ${c}</th>`).join('')}</tr></thead><tbody>` +
+    weeks.map(w => `<tr><td>${fmtWeek(w)}${w === D.currentWeek ? ' <small style="color:var(--text-muted)">partial</small>' : ''}</td>${MOVE_COLS.map(c => `<td class="n">${n(w, c)}</td>`).join('')}</tr>`).join('') + '</tbody>';
+}
+
+function render() {
+  renderControls(); renderKPIs(); renderFunnel(); renderMoves();
+}
+render();
+</script>
+</body>
+</html>
